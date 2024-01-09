@@ -4,75 +4,63 @@ import { GraphQLError } from 'graphql'
 import gql from 'graphql-tag'
 import { v1 as uuid } from 'uuid'
 
+// Demo response from reqres.in api: https://reqres.in/api/users?page=2
 const users = [
   {
-    id: '1',
-    name: 'John',
-    surname: 'Doe',
-    street: '123 Main St',
-    city: 'New York',
-    zipCode: '10001',
-    phone: '123-456-7890',
+    id: '7',
+    email: 'michael.lawson@reqres.in',
+    first_name: 'Michael',
+    last_name: 'Lawson',
+    avatar: 'https://reqres.in/img/faces/7-image.jpg',
   },
   {
-    id: '2',
-    name: 'Jane',
-    surname: 'Doe',
-    street: '456 Main St',
-    city: 'New York',
-    zipCode: '10001',
-    phone: '123-456-7890',
+    id: '8',
+    email: 'tom@reqres.in',
+    first_name: 'Tom',
+    last_name: 'Lee',
+    avatar: 'https://reqres.in/img/faces/8-image.jpg',
   },
 ]
 
 const typeDefs = gql`
   type User {
     id: ID!
-    name: String!
-    surname: String!
-    street: String!
-    zipCode: Int!
-    phone: String
-    city: String!
-    address: String!
+    email: String!
+    first_name: String!
+    last_name: String!
+    avatar: String
+    completeName: String
   }
 
   type Query {
     allUsers: [User]
     usersCount: Int! @deprecated(reason: "Use userLength instead.")
     usersLength: Int!
-    findUserbyName(name: String!): User
+    findUserbyName(first_name: String!): User
     findUserById(id: ID!): User
   }
 
   type Mutation {
-    addUser(
-      name: String!
-      surname: String!
-      street: String!
-      zipCode: Int!
-      phone: String
-      city: String!
-    ): User
+    addUser(email: String!, first_name: String!, last_name: String!, avatar: String): User
   }
 `
 
 const resolvers = {
   User: {
-    address: parent => `${parent.street}, ${parent.city}, ${parent.zipCode}`,
+    completeName: parent => `${parent.first_name} ${parent.last_name}`,
   },
 
   Query: {
     allUsers: () => users,
     usersCount: () => users.length,
     usersLength: () => users.length,
-    findUserbyName: (parent, args) => users.find(user => user.name === args.name),
+    findUserbyName: (parent, args) => users.find(user => user.first_name === args.first_name),
     findUserById: (parent, args) => users.find(user => user.id === args.id),
   },
 
   Mutation: {
     addUser: (parent, args) => {
-      if (users.find(user => user.name === args.name)) {
+      if (users.find(user => user.last_name === args.last_name)) {
         throw new GraphQLError('User already exists', {
           extensions: {
             code: 'BAD_USER_INPUT',
