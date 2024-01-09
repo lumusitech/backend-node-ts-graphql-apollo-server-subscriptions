@@ -39,7 +39,8 @@ const typeDefs = gql`
 
   type Query {
     allUsers: [User]
-    usersCount: Int!
+    usersCount: Int! @deprecated(reason: "Use userLength instead.")
+    usersLength: Int!
     findUserbyName(name: String!): User
     findUserById(id: ID!): User
   }
@@ -64,6 +65,7 @@ const resolvers = {
   Query: {
     allUsers: () => users,
     usersCount: () => users.length,
+    usersLength: () => users.length,
     findUserbyName: (parent, args) => users.find(user => user.name === args.name),
     findUserById: (parent, args) => users.find(user => user.id === args.id),
   },
