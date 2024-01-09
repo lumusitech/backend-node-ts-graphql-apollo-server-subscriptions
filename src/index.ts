@@ -1,19 +1,17 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
-import gql from 'graphql-tag'
-// import { GraphQLError } from 'graphql'
-
-const typeDefs = gql``
-
-const resolvers = {}
+import { resolvers } from './graphql/resolvers'
+import { typeDefs } from './graphql/typeDefs'
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 })
 
-const { url } = await startStandaloneServer(server, {
-  listen: { port: 4000 },
-})
+;(async function () {
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 4000 },
+  })
 
-console.log(`🚀  Server ready at: ${url}`)
+  console.log(`🚀  Server ready at: ${url}`)
+})()
