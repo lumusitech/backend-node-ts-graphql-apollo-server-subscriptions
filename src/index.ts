@@ -3,27 +3,35 @@ import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
 import express from 'express'
+import { GraphQLError } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
+import gql from 'graphql-tag'
 import { useServer } from 'graphql-ws/lib/use/ws'
 import { createServer } from 'http'
+import mongoose, { Schema, model } from 'mongoose'
 import { WebSocketServer } from 'ws'
-import gql from 'graphql-tag'
-import mongoose from 'mongoose'
-import dotenv from 'dotenv'
 
 dotenv.config()
+
+const commentSchema = new Schema({
+  name: String,
+  endDate: String,
+})
+const Comment = model('Comment', commentSchema)
 
 const PORT = 4000
 
 const typeDefs = gql`
   type Comment {
+    id: ID!
     name: String!
     endDate: String!
   }
 
   type Query {
-    sayHello: String!
+    comments: [Comment!]!
   }
 
   type Mutation {
@@ -38,7 +46,7 @@ const pubSub = new PubSub()
 
 const resolvers = {
   Query: {
-    sayHello: () => 'Hello World!',
+    comments: async () => await Comment.find({}),
   },
 
   Subscription: {
@@ -48,12 +56,23 @@ const resolvers = {
   },
 
   Mutation: {
-    createComment: (_, { name }) => {
-      const comment = { name, endDate: new Date().toISOString() }
+    createComment: async (_, { name }) => {
+      try {
+        const comment = { name, endDate: new Date().toISOString() }
 
-      // TODO: save comment to some database or with an api rest service
-      pubSub.publish('COMMENT_CREATED', { commentCreated: comment })
-      return `Comment: ${name} was created!`
+        const commentToSave = await Comment.create(comment)
+        await commentToSave.save()
+
+        pubSub.publish('COMMENT_CREATED', { commentCreated: commentToSave })
+
+        return `Comment: ${name} was created!`
+      } catch (error) {
+        throw new GraphQLError('Error creating comment', {
+          extensions: {
+            code: 'INTERNAL_SERVER_ERROR',
+          },
+        })
+      }
     },
   },
 }
