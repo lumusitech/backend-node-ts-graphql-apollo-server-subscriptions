@@ -1,6 +1,6 @@
 # Node - Graphql - Apollo Server
 
-This is a simple node ts project to learn graphql and apollo server.
+This is a simple node ts project to learn subscriptions on graphql and apollo server.
 
 after clone, run:
 
@@ -15,3 +15,9 @@ pnpm dev
 - graphql
 - apollo-server
 - typescript
+- @graphql-tools/schema
+- body-parser
+- express
+- graphql-subscriptions
+- graphql-ws
+- ws
