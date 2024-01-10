@@ -2,11 +2,13 @@
 
 This is a simple node ts project to learn subscriptions on graphql and apollo server.
 
+NOTE: Remember add environment variables to .env file like the example file .env.template
+
 after clone, run:
 
 ```sh
 pnpm i
-pnpm dev
+pnpm start
 ```
 
 ## Dependencies
